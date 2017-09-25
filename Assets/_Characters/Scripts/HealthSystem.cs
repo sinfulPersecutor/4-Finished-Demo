@@ -20,15 +20,15 @@ namespace RPG.Characters
         float currentHealthPoints; 
         Animator animator;
         AudioSource audioSource;
-        Character characterMovement;
+        Character character;
 
         public float healthAsPercentage { get { return currentHealthPoints / maxHealthPoints; } }
 
         void Start()
         {
             animator = GetComponent<Animator>();
-            audioSource = GetComponent<AudioSource>();
-            characterMovement = GetComponent<Character>();
+            character = GetComponent<Character>();
+            audioSource = character.GetAudioSource();
 
             currentHealthPoints = maxHealthPoints;
         }
@@ -65,20 +65,29 @@ namespace RPG.Characters
 
         IEnumerator KillCharacter()
         {
-            characterMovement.Kill();
+            character.Kill();
             animator.SetTrigger(DEATH_TRIGGER);
+
+            var clip = deathSounds[UnityEngine.Random.Range(0, deathSounds.Length)];
+            PlayDeathSound(clip);
+            yield return new WaitForSecondsRealtime(audioSource.clip.length); // TODO discuss with Sam
+
             var playerComponent = GetComponent<PlayerControl>();
-            if (playerComponent && playerComponent.isActiveAndEnabled) // relying on lazy evaluation
+            bool characterIsPlayer = playerComponent && playerComponent.isActiveAndEnabled;
+            if (characterIsPlayer)
             {
-                audioSource.clip = deathSounds[UnityEngine.Random.Range(0, deathSounds.Length)];
-                audioSource.Play(); // overrind any existing sounds
-                yield return new WaitForSecondsRealtime(audioSource.clip.length);
                 SceneManager.LoadScene(0);
             }
-            else // assume is enemy fr now, reconsider on other NPCs
+            else // assume is enemy for now, reconsider on other NPCs
             {
                 DestroyObject(gameObject, deathVanishSeconds);
             }
+        }
+        
+        void PlayDeathSound(AudioClip clip)
+        {
+            audioSource.Stop();
+            audioSource.PlayOneShot(clip);
         }
     }
 }

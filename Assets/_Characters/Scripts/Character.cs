@@ -38,6 +38,7 @@ namespace RPG.Characters
         float turnAmount;
         float forwardAmount;
         bool isAlive = true;
+        AudioSource audioSource;
 
         void Awake()
         {
@@ -54,7 +55,7 @@ namespace RPG.Characters
             ridigBody = gameObject.AddComponent<Rigidbody>();
             ridigBody.constraints = RigidbodyConstraints.FreezeRotation;
 
-            var audioSource = gameObject.AddComponent<AudioSource>();
+            audioSource = gameObject.AddComponent<AudioSource>();
             audioSource.spatialBlend = audioSourceSpatialBlend;
 
             animator = gameObject.AddComponent<Animator>();
@@ -79,6 +80,11 @@ namespace RPG.Characters
             {
                 Move(Vector3.zero);
             }
+        }
+
+        public AudioSource GetAudioSource()
+        {
+            return audioSource;
         }
 
         public float GetAnimSpeedMultiplier()
