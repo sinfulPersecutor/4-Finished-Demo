@@ -1,14 +1,15 @@
 ﻿﻿using UnityEngine;
 
-public class AudioTrigger : MonoBehaviour
+public class PlayerNearAudio : MonoBehaviour
 {
     [SerializeField] AudioClip clip;
     [SerializeField] int layerFilter = 11;
     [SerializeField] float triggerRadius = 0f;
     [SerializeField] bool isOneTimeOnly = true;
 
-    [SerializeField] bool hasPlayed = false;
+    bool hasPlayed = false;
     AudioSource audioSource;
+    GameObject player;
 
     void Start()
     {
@@ -16,15 +17,13 @@ public class AudioTrigger : MonoBehaviour
         audioSource.playOnAwake = false;
         audioSource.clip = clip;
 
-        SphereCollider sphereCollider = gameObject.AddComponent<SphereCollider>();
-        sphereCollider.isTrigger = true;
-        sphereCollider.radius = triggerRadius;
-        gameObject.layer = LayerMask.NameToLayer("Ignore Raycast"); // BUG will make whole gameObject ignored
+        player = GameObject.FindGameObjectWithTag("Player");
     }
 
-    void OnTriggerEnter(Collider other)
+    void Update()
     {
-        if (other.gameObject.layer == layerFilter)
+        var distanceToPlayer = Vector3.Distance(transform.position, player.transform.position);
+        if (distanceToPlayer <= triggerRadius)
         {
             RequestPlayAudioClip();
         }
